@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.authors     = ["John 'asceth' Long"]
   s.email       = ["machinist@asceth.com"]
   s.homepage    = "https://github.com/asceth/remnant"
-  s.summary     = "Rails statistical gatherer"
+  s.summary     = "Rails statistical discoverer"
   s.description = "Remnant - peering into your ruby apps and discovering statistics you never knew could be so awful..."
 
   s.rubyforge_project = "remnant"
