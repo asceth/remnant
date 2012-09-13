@@ -15,7 +15,7 @@ class Remnant
     def collect
       extra_remnant_key = Remnant::Discover.results.delete(:extra_remnant_key)
 
-      if ::Rails.env.production?
+      if ::Rails.env.production? || ::Rails.env.staging? || ::Rails.env.demo?
         # send on
         Remnant::Discover.results.map do |remnant_key, ms|
           key = [
