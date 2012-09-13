@@ -25,7 +25,7 @@ class Remnant
                  remnant_key
                 ].compact.join('.')
 
-          Remannt.handler.timing(key, ms.to_i)
+          Remnant.handler.timing(key, ms.to_i)
         end
       else
         # log it
