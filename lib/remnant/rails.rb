@@ -1,6 +1,10 @@
 class Remnant
   class Rails
     module ClassMethods
+      def logger
+        ::Rails.logger
+      end
+
       def setup!
         Remnant.configure do
           environment ::Rails.env
@@ -28,20 +32,20 @@ class Remnant
         #
 
         # hook remnants
-        Remnant::Discover.find('request',  ActionController::Dispatch,              :call)
-        Remnant::Discover.find('dispatch', ActionController::Dispatch,              :_call)
+        Remnant::Discover.find('request',  ActionController::Dispatcher,            :call)
+        Remnant::Discover.find('dispatch', ActionController::Dispatcher,            :_call)
         Remnant::Discover.find('process',  ActionController::Base,                  :process)
         Remnant::Discover.find('filters',  ActionController::Filters::BeforeFilter, :call)
         Remnant::Discover.find('action',   ActionController::Base,                  :perform_action)
-        Remnant::Discover.find('rendering',ActionController::Base,                  :render)
+        Remnant::Discover.find('view',     ActionController::Base,                  :render)
         Remnant::Discover.find('filters',  ActionController::Filters::AfterFilter,  :call)
 
         # last hook into request cycle for sending results
         ::ActionController::Dispatcher.class_eval do
           def call_with_remnant_discovery(*args, &block) #:nodoc:
             call_without_remnant_discovery(*args, &block).tap do |status, headers, response|
-              Remnant.collect(ActionController::Request.new(args.first))
-              Rails.logger.flush if Rails.logger.respond_to? :flush
+              ::Remnant.collect
+              ::Rails.logger.flush if ::Rails.logger.respond_to? :flush
             end
           end
           alias_method_chain :call, :remnant_discovery
@@ -49,11 +53,11 @@ class Remnant
 
         # hook into perform_action for the extra remnant key
         ::ActionController::Base.class_eval do
-          def call_with_remnant_key(*args, &block) #:nodoc:
-            Remnant::Discover.results[:extra_remnant_key] = "#{request.controller}.#{request.action}"
-            call_without_remnant_key(*args, &block)
+          def perform_action_with_remnant_key(*args, &block) #:nodoc:
+            ::Remnant::Discover.results[:extra_remnant_key] = "#{params[:controller]}.#{params[:action]}"
+            perform_action_without_remnant_key(*args, &block)
           end
-          alias_method_chain :call, :remnant_key
+          alias_method_chain :perform_action, :remnant_key
         end
       end # setup!
     end

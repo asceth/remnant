@@ -12,7 +12,7 @@ class Remnant
       @handler ||= Statsd.new(Remnant.configuration.hostname, Remnant.configuration.port_number)
     end
 
-    def collect(request)
+    def collect
       extra_remnant_key = Remnant::Discover.results.delete(:extra_remnant_key)
 
       if ::Rails.env.production?
@@ -25,14 +25,19 @@ class Remnant
                  remnant_key
                 ].compact.join('.')
 
-          Remannt.handler.timing(key, ms)
+          Remannt.handler.timing(key, ms.to_i)
         end
       else
         # log it
         Rails.logger.info "--------------Remnants Discovered--------------"
 
         Remnant::Discover.results.map do |remnant_key, ms|
-          Rails.logger.info "    #{ms}ms #{key}"
+          key = [
+                 extra_remnant_key,
+                 remnant_key
+                ].compact.join('.')
+
+          Rails.logger.info "#{ms.to_i}ms\t#{key}"
         end
 
         Rails.logger.info "-----------------------------------------------"

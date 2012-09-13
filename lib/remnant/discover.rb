@@ -1,5 +1,3 @@
-require 'remnant/re_discover'
-
 class Remnant
   module Discover
     module ClassMethods
@@ -9,9 +7,10 @@ class Remnant
         klass.class_eval <<-EOL, __FILE__, __LINE__
           #{"class << self" unless instance}
           def #{method}_with_remnant(*args, &block)
-            Remant::Discover.measure(#{key.inspect}) do
+            ::Remnant::Discover.measure(#{key.inspect}) do
               #{method}_without_remnant(*args, &block)
             end
+          end
 
           alias_method_chain :#{method}, :remnant
           #{"end" unless instance}
@@ -25,7 +24,7 @@ class Remnant
           result = nil
           Remnant::Discover.running << key
           begin
-            Remnant::Discover.result[key] += Benchmark.ms { result = yield }
+            Remnant::Discover.results[key] += Benchmark.ms { result = yield }
           rescue
             raise
           ensure
@@ -43,14 +42,16 @@ class Remnant
         Thread.current[:running] ||= []
       end
 
-      def rediscover(*args)
+      def remnants_to_rediscover
         @remnants_to_rediscover ||= []
+      end
 
-        @remnants_to_rediscover << args unless @remnants_to_rediscover.include?(args)
+      def rediscover(*args)
+        remnants_to_rediscover << args unless remnants_to_rediscover.include?(args)
       end
 
       def rediscover!
-        @remnants_to_rediscover.map do |(key, klass_name, method, instance)|
+        remnants_to_rediscover.map do |(key, klass_name, method, instance)|
           find(key, klass_name.constantize, method, instance)
         end
       end
