@@ -1,0 +1,1 @@
+require 'remnant/rails'
