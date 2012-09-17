@@ -62,7 +62,7 @@ class Remnant
         # hook into perform_action for the extra remnant key
         ::ActionController::Base.class_eval do
           def perform_action_with_remnant_key(*args, &block) #:nodoc:
-            ::Remnant::Discover.results[:extra_remnant_key] = "#{params[:controller]}.#{params[:action]}"
+            ::Remnant::Discover.results[:extra_remnant_key] = "#{params[:controller].to_s.underscore}.#{params[:action]}"
             perform_action_without_remnant_key(*args, &block)
           end
           alias_method_chain :perform_action, :remnant_key

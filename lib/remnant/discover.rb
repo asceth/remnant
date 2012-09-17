@@ -24,7 +24,7 @@ class Remnant
           result = nil
           Remnant::Discover.running << key
           begin
-            Remnant::Discover.results[key] += Benchmark.ms { result = yield }
+            Remnant::Discover.results[key] += Benchmark.ms { result = yield }.to_i
           rescue
             raise
           ensure

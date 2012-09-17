@@ -14,10 +14,10 @@ describe Remnant::Discover do
     it "should add to existing result" do
       Remnant::Discover.results['fragment'].should == 0
 
-      Remnant::Discover.measure('fragment') { 'shattered' }
+      Remnant::Discover.measure('fragment') { 'shattered'; sleep 0.1 }
       shattered_measurement = Remnant::Discover.results['fragment']
 
-      Remnant::Discover.measure('fragment') { 'intact' }
+      Remnant::Discover.measure('fragment') { 'intact'; sleep 0.1 }
       Remnant::Discover.results['fragment'].should > shattered_measurement
     end
 
