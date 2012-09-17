@@ -44,8 +44,16 @@ class Remnant
         ::ActionController::Dispatcher.class_eval do
           def call_with_remnant_discovery(*args, &block) #:nodoc:
             call_without_remnant_discovery(*args, &block).tap do |status, headers, response|
-              ::Remnant.collect
-              ::Rails.logger.flush if ::Rails.logger.respond_to? :flush
+              begin
+                ::Remnant.collect
+                ::Rails.logger.flush if ::Rails.logger.respond_to? :flush
+              rescue Exception => e
+                if defined?(::Flail)
+                  Flail::Exception.notify(e)
+                else
+                  Rails.logger.error e.inspect
+                end
+              end
             end
           end
           alias_method_chain :call, :remnant_discovery
