@@ -42,6 +42,10 @@ Remnant::Rails.setup! # needed if on Rails 2.3.x
 ```
 
 
+###### Note
+Remnant logs to statsd only if your environment is production, demo or staging.
+For all other environments it logs via Rails.logger.info
+
 #### Author
 
 
