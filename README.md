@@ -37,6 +37,8 @@ Remnant.configure do
   # included in payload
   environment "production"
 end
+
+Remnant::Rails.setup! # needed if on Rails 2.3.x
 ```
 
 
