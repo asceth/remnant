@@ -33,8 +33,6 @@ class Remnant
 
         # hook remnants
         Remnant::Discover.find('request',  ActionController::Dispatcher,            :call)
-        Remnant::Discover.find('dispatch', ActionController::Dispatcher,            :_call)
-        Remnant::Discover.find('process',  ActionController::Base,                  :process)
         Remnant::Discover.find('filters',  ActionController::Filters::BeforeFilter, :call)
         Remnant::Discover.find('action',   ActionController::Base,                  :perform_action)
         Remnant::Discover.find('view',     ActionController::Base,                  :render)
@@ -62,7 +60,6 @@ class Remnant
         # hook into perform_action for the extra remnant key
         ::ActionController::Base.class_eval do
           def perform_action_with_remnant_key(*args, &block) #:nodoc:
-            ::Remnant::Discover.results[:extra_remnant_key] = "#{params[:controller].to_s.underscore}.#{params[:action]}"
             perform_action_without_remnant_key(*args, &block)
           end
           alias_method_chain :perform_action, :remnant_key

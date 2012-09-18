@@ -12,6 +12,8 @@ class Remnant
     # api key to use with payloads
     attr_reader :tag
 
+    attr_reader :sample_rate
+
     def host(value)
       @hostname = value
     end
@@ -28,12 +30,17 @@ class Remnant
       @env = value
     end
 
+    def sample(value)
+      @sample_rate = value
+    end
+
     def defaults!
       # configure some defaults
 
       @hostname = '127.0.0.1'
       @port_number = 8125
       @tag = 'remnant'
+      @sample_rate = 10
 
       self
     end # end defaults!

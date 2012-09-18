@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    remnant (0.2.0)
+    remnant (0.2.1)
       statsd-ruby (= 1.0.0)
 
 GEM
