@@ -53,7 +53,7 @@ class Remnant
 
       # run hook if given
       unless Remnant.configuration.custom_hook.nil?
-        Remannt.configuration.custom_hook.call(Remnant::Discover.results)
+        Remnant.configuration.custom_hook.call(Remnant::Discover.results)
       end
 
       Remnant::Discover.results.clear
