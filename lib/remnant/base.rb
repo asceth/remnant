@@ -51,6 +51,11 @@ class Remnant
         Rails.logger.info "-----------------------------------------------"
       end
 
+      # run hook if given
+      unless Remnant.configuration.custom_hook.nil?
+        Remannt.configuration.custom_hook.call(Remnant::Discover.results)
+      end
+
       Remnant::Discover.results.clear
     end
   end
