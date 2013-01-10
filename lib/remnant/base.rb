@@ -63,7 +63,7 @@ class Remnant
           Rails.logger.info ""
           Rails.logger.info "#{color(false, true)}----- Templates -----#{color(true)}"
           Remnant::Template.trace.root.children.map do |rendering|
-            Remnant::Template.trace.log(Rails.logger, rendering, 0)
+            Remnant::Template.trace.log(Rails.logger, rendering)
           end
         end
 

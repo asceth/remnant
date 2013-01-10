@@ -26,21 +26,21 @@ class Remnant
         @root ||= Remnant::Template::Rendering.new('root')
       end
 
-      def log(logger, rendering, depth = 0)
+      def log(logger, rendering)
         rendering.results.map do |key, result|
 
           #
           line = Remnant.color
-          line += "#{'   ' * depth}#{depth != 0 ? '└ ' : ''}"
+          line += "#{'   ' * (result['depth'] - 1)}#{result['depth'] > 1 ? '└ ' : ''}"
           line += "#{result['time'].to_i}ms (#{result['exclusive'].to_i}ms)"
           line += Remnant.color(true)
-          line += ' ' * ((line.size >= 50 ? 10 : 50 - line.size) - (depth == 0 ? 2 : 0))
+          line += ' ' * ((line.size >= 50 ? 10 : 50 - line.size) - (result['depth'] == 1 ? 2 : 0))
           line += "#{key}"
 
           logger.info line
 
           rendering.children.map do |child|
-            log(logger, child, depth + 1)
+            log(logger, child)
           end
         end
       end

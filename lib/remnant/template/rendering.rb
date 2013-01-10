@@ -6,14 +6,17 @@ class Remnant
       attr_accessor :end_time
       attr_accessor :parent
       attr_accessor :children
+      attr_accessor :depth
 
       def initialize(name)
         @name = name
         @children = []
+        @depth = 0
       end
 
       def add(rendering)
         @children << rendering
+        rendering.depth = depth + 1
         rendering.parent = self
       end
 
@@ -31,8 +34,9 @@ class Remnant
 
       def results
         @results ||= {name.to_s => {
-            'time' => time * 1000.0,
-            'exclusive' => exclusive_time * 1000.0,
+            'time' => time * 1000,
+            'exclusive' => exclusive_time * 1000,
+            'depth' => depth,
             'children' => children.map(&:results)
           }
         }
