@@ -1,5 +1,16 @@
 class Remnant
   module ClassMethods
+    def color(default = false, heading = false)
+      return "\033[0m" if default
+      return "\033[0;01;33m" if heading
+
+      @current_color ||= "\033[0;01;36m"
+      @next_color ||= "\033[0;01;35m"
+
+      @current_color, @next_color = @next_color, @current_color
+      @current_color
+    end
+
     def configure(&block)
       configuration.instance_eval(&block)
     end
@@ -37,7 +48,7 @@ class Remnant
         end
       else
         # always log in development mode
-        Rails.logger.info "--------------Remnants Discovered--------------"
+        Rails.logger.info "#{color(false, true)}--------------Remnants Discovered--------------#{color(true)}"
 
         Remnant::Discover.results.map do |remnant_key, ms|
           key = [
@@ -45,10 +56,30 @@ class Remnant
                  remnant_key
                 ].compact.join('.')
 
-          Rails.logger.info "#{ms.to_i}ms\t#{key}"
+          Rails.logger.info "#{Remnant.color}#{ms.to_i}ms#{Remnant.color(true)}\t#{key}"
         end
 
-        Rails.logger.info "-----------------------------------------------"
+        if Remnant::Template.enabled?
+          Rails.logger.info ""
+          Rails.logger.info "#{color(false, true)}----- Templates -----#{color(true)}"
+          Remnant::Template.trace.root.children.map do |rendering|
+            Remnant::Template.trace.log(Rails.logger, rendering, 0)
+          end
+        end
+
+        if Remnant::Database.enabled?
+          Rails.logger.info ""
+          Rails.logger.info("#{color(false, true)}---- Database (%.2fms) -----#{color(true)}" % (Remnant::Database.queries.map(&:time).sum * 1000))
+          if Remnant::Database.suppress?
+            Rails.logger.info "queries suppressed in development mode"
+          else
+            Remnant::Database.queries.map do |query|
+              Rails.logger.info("#{color}%.2fms#{color(true)}\t#{query.sql}" % (query.time * 1000))
+            end
+          end
+        end
+
+        Rails.logger.info "#{color(false, true)}-----------------------------------------------#{color(true)}"
       end
 
       # run hook if given
@@ -56,6 +87,8 @@ class Remnant
         Remnant.configuration.custom_hook.call(Remnant::Discover.results)
       end
 
+      Remnant::Database.reset
+      Remnant::Template.reset
       Remnant::Discover.results.clear
     end
   end

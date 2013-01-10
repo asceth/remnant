@@ -3,7 +3,10 @@ class Remnant
     module ClassMethods
       def find(key, klass, method, instance = true)
         rediscover(key, klass, method, instance) if ActiveSupport::Dependencies.will_unload?(klass)
+        _inject(key, klass, method, instance)
+      end
 
+      def _inject(key, klass, method, instance)
         klass.class_eval <<-EOL, __FILE__, __LINE__
           #{"class << self" unless instance}
           def #{method}_with_remnant(*args, &block)
@@ -15,6 +18,11 @@ class Remnant
           alias_method_chain :#{method}, :remnant
           #{"end" unless instance}
         EOL
+      end
+
+      def find_with(klass, &block)
+        rediscover(klass, block) if ActiveSupport::Dependencies.will_unload?(klass)
+        block.call
       end
 
       def measure(key, &block)
@@ -51,8 +59,13 @@ class Remnant
       end
 
       def rediscover!
-        remnants_to_rediscover.map do |(key, klass_name, method, instance)|
-          find(key, klass_name.constantize, method, instance)
+        remnants_to_rediscover.map do |remnant|
+          if remnant.size == 4
+            key, klass_name, method, instance = remnant
+            _inject(key, klass_name.constantize, method, instance)
+          else
+            remant.first.call
+          end
         end
       end
     end

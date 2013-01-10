@@ -38,6 +38,40 @@ class Remnant
         Remnant::Discover.find('view',     ActionController::Base,                  :render)
         Remnant::Discover.find('filters',  ActionController::Filters::AfterFilter,  :call)
 
+        #
+        # Template rendering
+        #
+        if defined?(ActionView) && defined?(ActionView::Template)
+          Remnant::Discover.find_with(ActionView::Template) do
+            ActionView::Template.class_eval do
+              def render_template_with_remnant(*args, &block)
+                ::Remnant::Template.record(path_without_format_and_extension) do
+                  render_template_without_remnant(*args, &block)
+                end
+              end
+
+              alias_method_chain :render_template, :remnant
+            end
+          end
+        end
+
+        #
+        # database query time
+        #
+        if ::Rails::VERSION::MAJOR == 2
+          Remnant::Discover.find_with(ActiveRecord::ConnectionAdapters::AbstractAdapter) do
+            ActiveRecord::ConnectionAdapters::AbstractAdapter.class_eval do
+              def log_with_remnant(sql, name, &block)
+                ::Remnant::Database.record(sql, Kernel.caller) do
+                  log_without_remnant(sql, name, &block)
+                end
+              end
+
+              alias_method_chain :log, :remnant
+            end
+          end
+        end
+
         # last hook into request cycle for sending results
         ::ActionController::Dispatcher.class_eval do
           def call_with_remnant_discovery(*args, &block) #:nodoc:
