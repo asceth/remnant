@@ -33,6 +33,7 @@ class Remnant
 
       def reset
         @suppress = true
+        @total_time = nil
         Thread.current['remnant.database.queries'] = []
       end
 
@@ -41,7 +42,7 @@ class Remnant
       end
 
       def total_time
-        @total_time ||= (queries.inject(0) {|memo, query| memo + query.time}) * 1000
+        @total_time ||= queries.map(&:time).sum * 1000
       end
     end
     extend ClassMethods

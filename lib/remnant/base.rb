@@ -31,15 +31,18 @@ class Remnant
       if ::Rails.env.production? || ::Rails.env.staging? || ::Rails.env.demo?
         # only log if above sample rate
         if @sample_counter > configuration.sample_rate
-          Remnant::Discover.results.map do |remnant_key, ms|
-            key = [
-                   Remnant.configuration.tag,
-                   Remnant.configuration.env,
-                   extra_remnant_key,
-                   remnant_key
-                  ].compact.join('.')
+          key_prefix = [
+                        Remnant.configuration.tag,
+                        Remnant.configuration.env,
+                        extra_remnant_key
+                       ].compact.join('.')
 
-            Remnant.handler.timing(key, ms.to_i)
+          Remnant::Discover.results.map do |remnant_key, ms|
+            Remnant.handler.timing("#{key_prefix}.#{remnant_key}", ms.to_i)
+          end
+
+          if Remnant::Database.enabled?
+            Remnant.handler.timing("#{key_prefix}.db", Remnant::Database.queries.total_time.to_i)
           end
 
           @sample_counter = 0
@@ -69,7 +72,7 @@ class Remnant
 
         if Remnant::Database.enabled?
           Rails.logger.info ""
-          Rails.logger.info("#{color(false, true)}---- Database (%.2fms) -----#{color(true)}" % (Remnant::Database.queries.map(&:time).sum * 1000))
+          Rails.logger.info("#{color(false, true)}---- Database (%.2fms) -----#{color(true)}" % Remnant::Database.queries.total_time)
           if Remnant::Database.suppress?
             Rails.logger.info "queries suppressed in development mode"
           else
