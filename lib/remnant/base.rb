@@ -42,7 +42,7 @@ class Remnant
           end
 
           if Remnant::Database.enabled?
-            Remnant.handler.timing("#{key_prefix}.db", Remnant::Database.queries.total_time.to_i)
+            Remnant.handler.timing("#{key_prefix}.db", Remnant::Database.total_time.to_i)
           end
 
           @sample_counter = 0
@@ -72,7 +72,7 @@ class Remnant
 
         if Remnant::Database.enabled?
           Rails.logger.info ""
-          Rails.logger.info("#{color(false, true)}---- Database (%.2fms) -----#{color(true)}" % Remnant::Database.queries.total_time)
+          Rails.logger.info("#{color(false, true)}---- Database (%.2fms) -----#{color(true)}" % Remnant::Database.total_time)
           if Remnant::Database.suppress?
             Rails.logger.info "queries suppressed in development mode"
           else
