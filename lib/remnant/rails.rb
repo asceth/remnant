@@ -33,10 +33,29 @@ class Remnant
 
         # hook remnants
         Remnant::Discover.find('request',  ActionController::Dispatcher,            :call)
-        Remnant::Discover.find('filters',  ActionController::Filters::BeforeFilter, :call)
         Remnant::Discover.find('action',   ActionController::Base,                  :perform_action)
         Remnant::Discover.find('view',     ActionController::Base,                  :render)
-        Remnant::Discover.find('filters',  ActionController::Filters::AfterFilter,  :call)
+
+        #
+        # Filter capturing
+        #
+        [
+         ActionController::Filters::BeforeFilter,
+         ActionController::Filters::AfterFilter,
+         ActionController::Filters::AroundFilter
+        ].map do |remnant_constant|
+          Remnant::Discover.find_with(remnant_constant) do
+            remnant_constant.class_eval do
+              def call_with_remnant(*args, &block)
+                ::Remnant::Filters.record(self.class.to_s, method.to_s) do
+                  call_without_remnant(*args, &block)
+                end
+              end
+
+              alias_method_chain :call, :remnant
+            end
+          end
+        end
 
         #
         # Template rendering

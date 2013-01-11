@@ -62,6 +62,14 @@ class Remnant
           Rails.logger.info "#{Remnant.color}#{ms.to_i}ms#{Remnant.color(true)}\t#{key}"
         end
 
+        # filters
+        Rails.logger.info ""
+        Rails.logger.info("#{color(false, true)}----- Filters (%.2fms) -----#{color(true)}" % Remnant::Filters.total_time)
+        Remnant::Filters.filters.map do |filter|
+          Rails.logger.info("#{color}%.2fms#{color(true)}\t#{filter.name} (#{filter.type})" % (filter.time * 1000))
+        end
+
+        # template captures
         if Remnant::Template.enabled?
           Rails.logger.info ""
           Rails.logger.info "#{color(false, true)}----- Templates -----#{color(true)}"
@@ -70,6 +78,7 @@ class Remnant
           end
         end
 
+        # sql captures
         if Remnant::Database.enabled?
           Rails.logger.info ""
           Rails.logger.info("#{color(false, true)}---- Database (%.2fms) -----#{color(true)}" % Remnant::Database.total_time)
@@ -92,6 +101,7 @@ class Remnant
 
       Remnant::Database.reset
       Remnant::Template.reset
+      Remnant::Filters.reset
       Remnant::Discover.results.clear
     end
   end
