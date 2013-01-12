@@ -4,8 +4,11 @@ require 'remnant/base'
 require 'remnant/configuration'
 require 'remnant/discover'
 
+require 'remnant/gc'
+require 'remnant/gc/base'
+require 'remnant/gc/ree'
+
 require 'remnant/filters'
-require 'remnant/filters/filter'
 
 require 'remnant/template'
 require 'remnant/template/trace'

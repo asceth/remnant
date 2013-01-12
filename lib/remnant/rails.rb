@@ -94,9 +94,12 @@ class Remnant
         # last hook into request cycle for sending results
         ::ActionController::Dispatcher.class_eval do
           def call_with_remnant_discovery(*args, &block) #:nodoc:
+            ::Remnant::GC.enable_stats
             call_without_remnant_discovery(*args, &block).tap do |status, headers, response|
+              ::Remnant::GC.disable_stats
               begin
                 ::Remnant.collect
+                ::Remnant::GC.clear_stats
                 ::Rails.logger.flush if ::Rails.logger.respond_to? :flush
               rescue Exception => e
                 if defined?(::Flail)

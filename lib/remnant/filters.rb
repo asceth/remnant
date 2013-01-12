@@ -4,7 +4,8 @@ class Remnant
       def record(filter_type, filter_name, &block)
         start_time = Time.now
         result = block.call
-        filters << Remnant::Filters::Filter.new(filter_type, filter_name, Time.now - start_time)
+        time = Time.now - start_time
+        filters << {:type => filter_type, :name => filter_name, :time => time, :ms => time * 1000}
 
         return result
       end
@@ -19,7 +20,7 @@ class Remnant
       end
 
       def total_time
-        @total_time ||= filters.map(&:time).sum * 1000
+        @total_time ||= filters.map {|filter| filter[:ms]}.sum
       end
     end
     extend ClassMethods

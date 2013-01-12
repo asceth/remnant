@@ -41,9 +41,8 @@ class Remnant
             Remnant.handler.timing("#{key_prefix}.#{remnant_key}", ms.to_i)
           end
 
-          if Remnant::Database.enabled?
-            Remnant.handler.timing("#{key_prefix}.db", Remnant::Database.total_time.to_i)
-          end
+          Remnant.handler.timing("#{key_prefix}.gc", Remnant::GC.ms.to_i)
+          Remnant.handler.timing("#{key_prefix}.db", Remnant::Database.total_time.to_i)
 
           @sample_counter = 0
         else
@@ -61,12 +60,13 @@ class Remnant
 
           Rails.logger.info "#{Remnant.color}#{ms.to_i}ms#{Remnant.color(true)}\t#{key}"
         end
+        Rails.logger.info "#{Remnant.color}#{Remnant::GC.time.to_i}ms (#{Remnant::GC.collections} collections)#{Remnant.color(true)}\tGC"
 
         # filters
         Rails.logger.info ""
         Rails.logger.info("#{color(false, true)}----- Filters (%.2fms) -----#{color(true)}" % Remnant::Filters.total_time)
         Remnant::Filters.filters.map do |filter|
-          Rails.logger.info("#{color}%.2fms#{color(true)}\t#{filter.name} (#{filter.type})" % (filter.time * 1000))
+          Rails.logger.info("#{color}%.2fms#{color(true)}\t#{filter[:name]} (#{filter[:type]})" % filter[:ms])
         end
 
         # template captures
@@ -79,15 +79,13 @@ class Remnant
         end
 
         # sql captures
-        if Remnant::Database.enabled?
-          Rails.logger.info ""
-          Rails.logger.info("#{color(false, true)}---- Database (%.2fms) -----#{color(true)}" % Remnant::Database.total_time)
-          if Remnant::Database.suppress?
-            Rails.logger.info "queries suppressed in development mode"
-          else
-            Remnant::Database.queries.map do |query|
-              Rails.logger.info("#{color}%.2fms#{color(true)}\t#{query.sql}" % (query.time * 1000))
-            end
+        Rails.logger.info ""
+        Rails.logger.info("#{color(false, true)}---- Database (%.2fms) -----#{color(true)}" % Remnant::Database.total_time)
+        if Remnant::Database.suppress?
+          Rails.logger.info "queries suppressed in development mode"
+        else
+          Remnant::Database.queries.map do |query|
+            Rails.logger.info("#{color}%.2fms#{color(true)}\t#{query.sql}" % (query.time * 1000))
           end
         end
 
