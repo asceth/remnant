@@ -41,7 +41,7 @@ class Remnant
             Remnant.handler.timing("#{key_prefix}.#{remnant_key}", ms.to_i)
           end
 
-          Remnant.handler.timing("#{key_prefix}.gc", Remnant::GC.ms.to_i)
+          Remnant.handler.timing("#{key_prefix}.gc", Remnant::GC.time.to_i)
           Remnant.handler.timing("#{key_prefix}.db", Remnant::Database.total_time.to_i)
 
           @sample_counter = 0
