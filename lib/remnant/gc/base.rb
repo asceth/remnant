@@ -2,6 +2,10 @@ class Remnant
   class GC
     class Base
       module ClassMethods
+        def enabled?
+          false
+        end
+
         def time
           0
         end

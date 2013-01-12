@@ -2,6 +2,10 @@ class Remnant
   class GC
     class Ree
       module ClassMethods
+        def enabled?
+          true
+        end
+
         def time
           # returns time in microseconds so convert to ms
           ::GC.time / 1000

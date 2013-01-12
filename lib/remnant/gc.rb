@@ -1,6 +1,10 @@
 class Remnant
   class GC
     module ClassMethods
+      def enabled?
+        _gc.enabled?
+      end
+
       def enable_stats
         _gc.enable_stats
       end
