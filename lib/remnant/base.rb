@@ -43,6 +43,7 @@ class Remnant
 
           Remnant.handler.timing("#{key_prefix}.gc", Remnant::GC.time.to_i)
           Remnant.handler.timing("#{key_prefix}.db", Remnant::Database.total_time.to_i)
+          Remnant.handler.timing("#{key_prefix}.filters", Remnant::Filters.total_time.to_i)
 
           @sample_counter = 0
         else
