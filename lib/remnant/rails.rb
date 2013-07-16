@@ -89,6 +89,13 @@ class Remnant
               alias_method_chain :log, :remnant
             end
           end
+        else
+          ActiveSupport::Notifications.subscribe("sql.active_record") do |name, started, ended, id, payload|
+            duration = ended - started
+            trace = Rails.backtrace_cleaner.clean(Kernel.caller[1..-1])
+
+            ::Remnant::Database.queries << ::Remnant::Database::Query.new(payload[:sql], duration, trace)
+          end
         end
 
         # last hook into request cycle for sending results
