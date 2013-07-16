@@ -7,7 +7,7 @@ class Remnant
     def call(env)
       @response = [500, '', '']
 
-      if env['REQUEST_PATH'].include?('/asset')
+      if env['REQUEST_PATH'] && env['REQUEST_PATH'].include?('/asset')
         @response = @app.call(env)
       else
 
