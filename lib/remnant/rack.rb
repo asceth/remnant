@@ -13,7 +13,7 @@ class Remnant
 
         begin
           # only gc capture as dev
-          if env['rack.request.cookie_hash']['developer']
+          if env['rack.request.cookie_hash']['developer'] == '1'
             ::Remnant::GC.enable_stats
           end
 
@@ -26,7 +26,7 @@ class Remnant
           ::Remnant.collect
 
           # only gc capture as dev
-          if env['rack.request.cookie_hash']['developer']
+          if env['rack.request.cookie_hash']['developer'] == '1'
             ::Remnant::GC.clear_stats
           end
 
