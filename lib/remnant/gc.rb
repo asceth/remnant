@@ -32,6 +32,8 @@ class Remnant
       def _gc_implementation
         if ::GC.respond_to?(:time) && ::GC.respond_to?(:collections)
           Remnant::GC::Ree
+        elsif defined?(::GC::Profiler)
+          Remnant::GC::Profiler
         else
           Remnant::GC::Base
         end

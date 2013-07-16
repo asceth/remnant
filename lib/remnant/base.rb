@@ -1,5 +1,17 @@
 class Remnant
   module ClassMethods
+    def disable!
+      @enabled = false
+    end
+
+    def enable!
+      @enabled = true
+    end
+
+    def enabled?
+      @enabled
+    end
+
     def color(default = false, heading = false)
       return "\033[0m" if default
       return "\033[0;01;33m" if heading

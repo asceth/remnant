@@ -7,6 +7,7 @@ require 'remnant/discover'
 require 'remnant/gc'
 require 'remnant/gc/base'
 require 'remnant/gc/ree'
+require 'remnant/gc/profiler'
 
 require 'remnant/filters'
 
@@ -17,7 +18,9 @@ require 'remnant/template/rendering'
 require 'remnant/database'
 require 'remnant/database/query'
 
+require 'remnant/rack'
 require 'remnant/rails'
+
 require 'remnant/version'
 
 require 'remnant/railtie' if defined?(::Rails::Railtie)
