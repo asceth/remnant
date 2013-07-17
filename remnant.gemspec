@@ -5,6 +5,7 @@ Gem::Specification.new do |s|
   s.name        = "remnant"
   s.version     = Remnant::VERSION
   s.platform    = Gem::Platform::RUBY
+  s.license     = 'MIT'
   s.authors     = ["John 'asceth' Long"]
   s.email       = ["machinist@asceth.com"]
   s.homepage    = "https://github.com/asceth/remnant"
