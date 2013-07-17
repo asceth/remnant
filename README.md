@@ -2,7 +2,8 @@ Remnant hooks into your Rails and discovers your hidden statistics.
 
 ##### Supports
 
-* Rails 2.3.x
+* Rails 2.3.x with REE for GC (v0.4.3)
+* Rails 3.2.x with 1.9.3 and 2.0.0 for GC (v0.9.x)
 
 #### What Remnant Captures
 * request - time it takes for a request to be served
@@ -20,12 +21,9 @@ request, action, view, gc, db, filters
 
 #### Install
 
-```
-$ [sudo] gem install remnant
-```
+Using bundler:
 
 ```ruby
-# For Rails 2.3.x
 gem 'remnant'
 ```
 
@@ -67,7 +65,7 @@ before_filter {|c| Remnant::Template.enable! }
 ```
 
 If you want to capture the sql query times you should enable Database
-capturing in a before filter (or before rendering takes place)
+capturing in a before filter (or before any database calls take place)
 ```ruby
 before_filter {|c| Remnant::Database.enable! }
 ```
