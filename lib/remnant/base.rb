@@ -40,28 +40,7 @@ class Remnant
 
       extra_remnant_key = Remnant::Discover.results.delete(:extra_remnant_key)
 
-      if ::Rails.env.production? || ::Rails.env.staging? || ::Rails.env.demo?
-        # only log if above sample rate
-        if @sample_counter > configuration.sample_rate
-          key_prefix = [
-                        Remnant.configuration.tag,
-                        Remnant.configuration.env,
-                        extra_remnant_key
-                       ].compact.join('.')
-
-          Remnant::Discover.results.map do |remnant_key, ms|
-            Remnant.handler.timing("#{key_prefix}.#{remnant_key}", ms.to_i)
-          end
-
-          Remnant.handler.timing("#{key_prefix}.gc", Remnant::GC.time.to_i)
-          Remnant.handler.timing("#{key_prefix}.db", Remnant::Database.total_time.to_i)
-          Remnant.handler.timing("#{key_prefix}.filters", Remnant::Filters.total_time.to_i)
-
-          @sample_counter = 0
-        else
-          @sample_counter += 1
-        end
-      else
+      if ::Rails.env.development? || ::Rails.env.test?
         # always log in development mode
         Rails.logger.info "#{color(false, true)}--------------Remnants Discovered--------------#{color(true)}"
 
@@ -103,6 +82,27 @@ class Remnant
         end
 
         Rails.logger.info "#{color(false, true)}-----------------------------------------------#{color(true)}"
+      else
+        # only log if above sample rate
+        if @sample_counter > configuration.sample_rate
+          key_prefix = [
+                        Remnant.configuration.tag,
+                        Remnant.configuration.env,
+                        extra_remnant_key
+                       ].compact.join('.')
+
+          Remnant::Discover.results.map do |remnant_key, ms|
+            Remnant.handler.timing("#{key_prefix}.#{remnant_key}", ms.to_i)
+          end
+
+          Remnant.handler.timing("#{key_prefix}.gc", Remnant::GC.time.to_i)
+          Remnant.handler.timing("#{key_prefix}.db", Remnant::Database.total_time.to_i)
+          Remnant.handler.timing("#{key_prefix}.filters", Remnant::Filters.total_time.to_i)
+
+          @sample_counter = 0
+        else
+          @sample_counter += 1
+        end
       end
 
       # run hook if given
