@@ -35,54 +35,63 @@ class Remnant
       @handler ||= Statsd.new(Remnant.configuration.hostname, Remnant.configuration.port_number)
     end
 
+    #
+    # Log everything to Rails logger for output
+    #
+    def output
+      # always log in development mode
+      Rails.logger.info "#{color(false, true)}--------------Remnants Discovered--------------#{color(true)}"
+
+      Remnant::Discover.results.map do |remnant_key, ms|
+        key = [
+          extra_remnant_key,
+          remnant_key
+        ].compact.join('.')
+
+        Rails.logger.info "#{Remnant.color}#{ms.to_i}ms#{Remnant.color(true)}\t#{key}"
+      end
+      Rails.logger.info "#{Remnant.color}#{Remnant::GC.time.to_i}ms (#{Remnant::GC.collections} collections)#{Remnant.color(true)}\tGC"
+
+      # filters
+      Rails.logger.info ""
+      Rails.logger.info("#{color(false, true)}----- Filters (%.2fms) -----#{color(true)}" % Remnant::Filters.total_time)
+      Remnant::Filters.filters.map do |filter|
+        Rails.logger.info("#{color}%.2fms#{color(true)}\t#{filter[:name]} (#{filter[:type]})" % filter[:ms])
+      end
+
+      # template captures
+      if Remnant::Template.enabled?
+        Rails.logger.info ""
+        Rails.logger.info "#{color(false, true)}----- Templates -----#{color(true)}"
+        Remnant::Template.trace.root.children.map do |rendering|
+          Remnant::Template.trace.log(Rails.logger, rendering)
+        end
+      end
+
+      # sql captures
+      Rails.logger.info ""
+      Rails.logger.info("#{color(false, true)}---- Database (%.2fms) -----#{color(true)}" % Remnant::Database.total_time)
+      if Remnant::Database.suppress?
+        Rails.logger.info "queries suppressed in development mode"
+      else
+        Remnant::Database.queries.map do |query|
+          Rails.logger.info("#{color}%.2fms#{color(true)}\t#{query.sql}" % (query.time * 1000))
+        end
+      end
+
+      Rails.logger.info "#{color(false, true)}-----------------------------------------------#{color(true)}"
+    end
+
+    #
+    # Collect data, report statsd timings, run hook
+    #
     def collect
       @sample_counter ||= 0
 
       extra_remnant_key = Remnant::Discover.results.delete(:extra_remnant_key)
 
-      if ::Rails.env.development? || ::Rails.env.test?
-        # always log in development mode
-        Rails.logger.info "#{color(false, true)}--------------Remnants Discovered--------------#{color(true)}"
-
-        Remnant::Discover.results.map do |remnant_key, ms|
-          key = [
-                 extra_remnant_key,
-                 remnant_key
-                ].compact.join('.')
-
-          Rails.logger.info "#{Remnant.color}#{ms.to_i}ms#{Remnant.color(true)}\t#{key}"
-        end
-        Rails.logger.info "#{Remnant.color}#{Remnant::GC.time.to_i}ms (#{Remnant::GC.collections} collections)#{Remnant.color(true)}\tGC"
-
-        # filters
-        Rails.logger.info ""
-        Rails.logger.info("#{color(false, true)}----- Filters (%.2fms) -----#{color(true)}" % Remnant::Filters.total_time)
-        Remnant::Filters.filters.map do |filter|
-          Rails.logger.info("#{color}%.2fms#{color(true)}\t#{filter[:name]} (#{filter[:type]})" % filter[:ms])
-        end
-
-        # template captures
-        if Remnant::Template.enabled?
-          Rails.logger.info ""
-          Rails.logger.info "#{color(false, true)}----- Templates -----#{color(true)}"
-          Remnant::Template.trace.root.children.map do |rendering|
-            Remnant::Template.trace.log(Rails.logger, rendering)
-          end
-        end
-
-        # sql captures
-        Rails.logger.info ""
-        Rails.logger.info("#{color(false, true)}---- Database (%.2fms) -----#{color(true)}" % Remnant::Database.total_time)
-        if Remnant::Database.suppress?
-          Rails.logger.info "queries suppressed in development mode"
-        else
-          Remnant::Database.queries.map do |query|
-            Rails.logger.info("#{color}%.2fms#{color(true)}\t#{query.sql}" % (query.time * 1000))
-          end
-        end
-
-        Rails.logger.info "#{color(false, true)}-----------------------------------------------#{color(true)}"
-      else
+      # don't send timings in development or test environments
+      unless ::Rails.env.development? || ::Rails.env.test?
         # only log if above sample rate
         if @sample_counter > configuration.sample_rate
           key_prefix = [
@@ -105,7 +114,7 @@ class Remnant
         end
       end
 
-      # run hook if given
+      # run hook if given for all environments
       unless Remnant.configuration.custom_hook.nil?
         Remnant.configuration.custom_hook.call(Remnant::Discover.results)
       end
