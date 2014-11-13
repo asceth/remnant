@@ -19,12 +19,5 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency 'statsd-ruby', '1.0.0'
-
-  s.add_development_dependency 'actionpack', '~> 2.3.8'
-  s.add_development_dependency 'activerecord', '~> 2.3.8'
-  s.add_development_dependency 'activesupport', '~> 2.3.8'
-  s.add_development_dependency 'rake'
-  s.add_development_dependency 'rspec'
-  s.add_development_dependency 'rr'
+  s.add_dependency 'statsd-ruby', '~> 1.0', '>= 1.0.0'
 end
