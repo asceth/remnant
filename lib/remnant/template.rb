@@ -19,11 +19,11 @@ class Remnant
 
         trace.start(template)
         begin
-          result = yield
+          @result = yield
         ensure
           trace.finished(template)
         end
-        return result
+        return @result
       end
 
       def reset

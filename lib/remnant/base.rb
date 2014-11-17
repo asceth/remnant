@@ -116,7 +116,11 @@ class Remnant
 
       # run hook if given for all environments
       unless Remnant.configuration.custom_hook.nil?
-        Remnant.configuration.custom_hook.call(Remnant::Discover.results)
+        begin
+          Remnant.configuration.custom_hook.call(Remnant::Discover.results)
+        rescue => e
+          ::Rails.logger.error "Failed to run hook: #{e.message}"
+        end
       end
 
       Remnant::Database.reset
