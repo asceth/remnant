@@ -9,8 +9,8 @@ RSpec.configure do |config|
   config.mock_with :rr
 end
 
-require 'action_controller'
 require 'active_support'
+require 'action_controller'
 
 require 'remnant'
 
