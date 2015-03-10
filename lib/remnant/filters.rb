@@ -2,12 +2,17 @@ class Remnant
   class Filters
     module ClassMethods
       def record(filter_type, filter_name, &block)
-        start_time = Time.now
-        result = block.call
-        time = Time.now - start_time
-        filters << {:type => filter_type, :name => filter_name, :time => time, :ms => time * 1000}
+        # ignore AroundFilters
+        if filter_type.to_s == 'ActionController::Filters::AroundFilter'
+          return block.call
+        else
+          start_time = Time.now
+          result = block.call
+          time = Time.now - start_time
+          filters << {:type => filter_type, :name => filter_name, :time => time, :ms => time * 1000}
 
-        return result
+          return result
+        end
       end
 
       def reset
