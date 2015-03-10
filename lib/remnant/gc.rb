@@ -30,10 +30,14 @@ class Remnant
       end
 
       def _gc_implementation
-        if ::GC.respond_to?(:time) && ::GC.respond_to?(:collections)
-          Remnant::GC::Ree
+        if RUBY_VERSION >= '2.1.0'
+          Remnant::GC::Mri
         else
-          Remnant::GC::Base
+          if ::GC.respond_to?(:time) && ::GC.respond_to?(:collections)
+            Remnant::GC::Ree
+          else
+            Remnant::GC::Base
+          end
         end
       end
     end

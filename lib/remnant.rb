@@ -7,6 +7,7 @@ require 'remnant/discover'
 require 'remnant/gc'
 require 'remnant/gc/base'
 require 'remnant/gc/ree'
+require 'remnant/gc/mri'
 
 require 'remnant/filters'
 
