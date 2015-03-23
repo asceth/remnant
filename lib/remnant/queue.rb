@@ -27,25 +27,25 @@ class Remnant
         app_queue_start = ::Remnant::Discover.results.delete('app_queue_start')
 
         if lb_queue_start && fe_queue_start
-          ms = (fe_queue_start - lb_queue_start).round(2) # ms
+          secs = fe_queue_start - lb_queue_start
 
           # if negative, clamp to 0
-          if ms < 0
-            ms = 0
+          if secs < 0.0
+            secs = 0
           end
 
-          ::Remnant::Discover.results['queue_lb'] = ms
+          ::Remnant::Discover.results['queue_lb'] = (secs * 1_000.0).round(2) # ms
         end
 
         if fe_queue_start && app_queue_start
-          ms = (app_queue_start - fe_queue_start).round(2) # ms
+          secs = app_queue_start - fe_queue_start
 
           # if negative, clamp to 0
-          if ms < 0
-            ms = 0
+          if secs < 0.0
+            secs = 0
           end
 
-          ::Remnant::Discover.results['queue_fe'] = ms
+          ::Remnant::Discover.results['queue_fe'] = (secs * 1_000.0).round(2) # ms
         end
       end
 
@@ -79,15 +79,15 @@ class Remnant
         end
       end
 
-      # bring everything into a millisecond precision
+      # bring everything into a seconds with millisecond precision
       def parse_timestamp(string, unit = :second)
         case unit
         when :second
-          string.to_f * 1_000.0
-        when :millisecond
           string.to_f
-        when :microsecond
+        when :millisecond
           string.to_f / 1_000
+        when :microsecond
+          string.to_f / 1_000_000
         end
       end
     end
