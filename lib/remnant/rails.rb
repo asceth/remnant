@@ -116,6 +116,10 @@ class Remnant
         # hook into perform_action for the extra remnant key
         ::ActionController::Base.class_eval do
           def perform_action_with_remnant_key(*args, &block) #:nodoc:
+            ::Remnant::Discover.results['lb_queue_start'] = ::Remnant::Queue.parse_frontend_timestamp(request.headers, 'lb')
+            ::Remnant::Discover.results['fe_queue_start'] = ::Remnant::Queue.parse_frontend_timestamp(request.headers, 'fe')
+            ::Remnant::Discover.results['app_queue_start'] = request.env['process.request_start'] || Time.now.to_f
+
             perform_action_without_remnant_key(*args, &block)
           end
           alias_method_chain :perform_action, :remnant_key

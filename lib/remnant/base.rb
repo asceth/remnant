@@ -28,6 +28,9 @@ class Remnant
 
       extra_remnant_key = Remnant::Discover.results.delete(:extra_remnant_key)
 
+      # process special queue times
+      ::Remnant::Queue.process!
+
       if ::Rails.env.development? || ::Rails.env.test?
         # always log in development mode
         Rails.logger.info "#{color(false, true)}--------------Remnants Discovered--------------#{color(true)}"
