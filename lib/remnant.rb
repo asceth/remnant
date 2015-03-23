@@ -18,6 +18,8 @@ require 'remnant/template/rendering'
 require 'remnant/database'
 require 'remnant/database/query'
 
+require 'remnant/queue'
+
 require 'remnant/rails'
 require 'remnant/version'
 
