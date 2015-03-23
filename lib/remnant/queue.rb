@@ -27,11 +27,25 @@ class Remnant
         app_queue_start = ::Remnant::Discover.results.delete('app_queue_start')
 
         if lb_queue_start && fe_queue_start
-          ::Remnant::Discover.results['queue_lb'] = (fe_queue_start - lb_queue_start) # ms
+          ms = (fe_queue_start - lb_queue_start).round(2) # ms
+
+          # if negative, clamp to 0
+          if ms < 0
+            ms = 0
+          end
+
+          ::Remnant::Discover.results['queue_lb'] = ms
         end
 
         if fe_queue_start && app_queue_start
-          ::Remnant::Discover.results['queue_fe'] = (app_queue_start - fe_queue_start) # ms
+          ms = (app_queue_start - fe_queue_start).round(2) # ms
+
+          # if negative, clamp to 0
+          if ms < 0
+            ms = 0
+          end
+
+          ::Remnant::Discover.results['queue_fe'] = ms
         end
       end
 
