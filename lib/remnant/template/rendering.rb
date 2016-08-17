@@ -29,7 +29,7 @@ class Remnant
       end
 
       def child_time
-        children.map(&:time).sum
+        children.inject(0.0) {|memo, c| memo + c.time}
       end
 
       def results

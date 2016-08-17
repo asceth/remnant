@@ -9,13 +9,14 @@ class Remnant
       def _inject(key, klass, method, instance)
         klass.class_eval <<-EOL, __FILE__, __LINE__
           #{"class << self" unless instance}
-          def #{method}_with_remnant(*args, &block)
+          alias_method :#{method}_without_remnant, :#{method}
+
+          def #{method}(*args, &block)
             ::Remnant::Discover.measure(#{key.inspect}) do
               #{method}_without_remnant(*args, &block)
             end
           end
 
-          alias_method_chain :#{method}, :remnant
           #{"end" unless instance}
         EOL
       end
