@@ -17,12 +17,13 @@ class Remnant
         # hook into dependency unloading
         ::ActiveSupport::Dependencies.class_eval do
           class << self
-            def clear_with_remnant_rediscover(*args, &block)
+            alias_method :clear_without_remnant_rediscover, :clear
+
+            def clear(*args, &block)
               clear_without_remnant_rediscover(*args, &block).tap do
                 Remnant::Discover.rediscover!
               end
             end
-            alias_method_chain :clear, :remnant_rediscover
           end
         end
 
@@ -46,13 +47,13 @@ class Remnant
         if defined?(ActionView) && defined?(ActionView::Template)
           Remnant::Discover.find_with(ActionView::Template) do
             ActionView::Template.class_eval do
-              def render_with_remnant(*args, &block)
+              alias_method :render_without_remnant, :render
+
+              def render(*args, &block)
                 ::Remnant::Template.record(@virtual_path) do
                   render_without_remnant(*args, &block)
                 end
               end
-
-              alias_method_chain :render, :remnant
             end
           end
         end
